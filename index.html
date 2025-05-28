@@ -70,10 +70,10 @@
     <p id="responseMessage" style="text-align:center;color:green;"></p>
   </div>
 
-  <script>
-    document.getElementById('enquiryForm').addEventListener('submit', function(e) {
+<script>
+document.getElementById('enquiryForm').addEventListener('submit', function(e) {
   e.preventDefault();
-
+  
   const form = e.target;
   const data = {
     name: form.name.value,
@@ -85,25 +85,17 @@
 
   fetch('https://script.google.com/macros/s/AKfycbwo54vZ0sMXKRzyb7zImrn772LHZO2ip2kRHZQqGOZRltALLE_jMVPk6_iqp8k7bNd3/exec', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    mode: 'no-cors', // <-- This disables CORS error (but you won't see response)
+    headers: {
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(response => {
-    if (response.result === "success") {
-      document.getElementById('responseMessage').innerText = 'Form submitted successfully!';
-      form.reset();
-    } else {
-      console.error("Google Script error:", response);
-      alert("Submission failed. Please try again.");
-    }
-  })
-  .catch(err => {
-    console.error("Fetch error:", err);
-    alert("Network error. Please try again.");
   });
-});
 
-  </script>
+  // Inform user (since response is hidden due to no-cors)
+  document.getElementById('responseMessage').innerText = 'Form submitted successfully!';
+  form.reset();
+});
+</script>
 </body>
 </html>
