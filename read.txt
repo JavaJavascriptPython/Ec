@@ -31,3 +31,83 @@ public class GzipFileReader {
         }
     }
 }
+
+
+
+
+
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.GZIPInputStream;
+
+public class GzipProcessor {
+
+    public static void main(String[] args) {
+        String gzipFilePath = "path/to/input.gz";
+        final int BUFFER_SIZE = 16 * 1024 * 1024;
+
+        // HashMap to store account -> balance
+        Map<String, Double> accountBalanceMap = new HashMap<>();
+
+        try (
+            FileInputStream fis = new FileInputStream(gzipFilePath);
+            GZIPInputStream gis = new GZIPInputStream(fis, BUFFER_SIZE);
+            InputStreamReader isr = new InputStreamReader(gis, "UTF-8");
+            BufferedReader reader = new BufferedReader(isr, BUFFER_SIZE)
+        ) {
+            String line;
+            long lineCount = 0;
+
+            while ((line = reader.readLine()) != null) {
+                processLine(line, accountBalanceMap);
+                lineCount++;
+
+                if (lineCount % 10_000_000 == 0) {
+                    System.out.println("Processed lines: " + lineCount);
+                }
+            }
+
+            System.out.println("Finished processing " + lineCount + " lines.");
+            System.out.println("Unique accounts: " + accountBalanceMap.size());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Processes a single line and updates the accountBalanceMap.
+     */
+    public static void processLine(String line, Map<String, Double> accountBalanceMap) {
+        if (line == null || line.isEmpty()) return;
+
+        String[] parts = line.split(",", -1);
+        if (parts.length != 3) return; // skip malformed lines
+
+        String account = parts[0].trim();
+        String type = parts[1].trim().toLowerCase();
+        double amount;
+
+        try {
+            amount = Double.parseDouble(parts[2].trim());
+        } catch (NumberFormatException e) {
+            return; // skip invalid amounts
+        }
+
+        double current = accountBalanceMap.getOrDefault(account, 0.0);
+
+        switch (type) {
+            case "deposit":
+                current += amount;
+                break;
+            case "withdrawal":
+                current -= amount;
+                break;
+            default:
+                return; // skip unknown types
+        }
+
+        accountBalanceMap.put(account, current);
+    }
+}
