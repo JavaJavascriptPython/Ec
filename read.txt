@@ -1,0 +1,33 @@
+import java.io.*;
+import java.util.zip.GZIPInputStream;
+
+public class GzipFileReader {
+
+    public static void main(String[] args) {
+        String gzipFilePath = "path/to/input.gz";
+
+        // Large buffer size for better performance (16 MB)
+        final int BUFFER_SIZE = 16 * 1024 * 1024;
+
+        try (
+            FileInputStream fis = new FileInputStream(gzipFilePath);
+            GZIPInputStream gis = new GZIPInputStream(fis, BUFFER_SIZE);
+            InputStreamReader isr = new InputStreamReader(gis, "UTF-8");
+            BufferedReader reader = new BufferedReader(isr, BUFFER_SIZE)
+        ) {
+            String line;
+            long lineCount = 0;
+
+            while ((line = reader.readLine()) != null) {
+                // Process each line here
+                // For now, we just count lines
+                lineCount++;
+            }
+
+            System.out.println("Finished reading. Total lines: " + lineCount);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
