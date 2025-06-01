@@ -2,100 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admission Enquiry</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      padding: 0;
-      margin: 0;
-    }
-    header {
-      background: #1e3a8a;
-      padding: 20px;
-      text-align: center;
-      color: white;
-    }
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #1e3a8a;
-    }
-    input, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-    button {
-      background: #1e3a8a;
-      color: white;
-      cursor: pointer;
-      border: none;
-    }
-    button:hover {
-      background: #3b82f6;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rose Petals - Nursery & KG School</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
-<body>
-  <header>
-    <div class="logo">My School Logo</div>
+<body class="bg-pink-50 text-gray-800">
+  <!-- Header -->
+  <header class="flex items-center justify-between p-4 bg-white shadow">
+    <img src="logo.png" alt="Rose Petals Logo" class="h-16 w-16" />
+    <div class="flex flex-col md:flex-row md:items-center md:gap-6 w-full justify-between ml-4">
+      <h1 class="text-3xl font-bold text-pink-600">Admissions Open!</h1>
+      <!-- Admission Form -->
+      <form class="bg-white p-4 rounded shadow w-full md:w-1/2">
+        <div class="mb-2">
+          <label class="block text-sm font-medium">Child's Name</label>
+          <input type="text" class="w-full border p-2 rounded" required />
+        </div>
+        <div class="mb-2">
+          <label class="block text-sm font-medium">Parent's Name</label>
+          <input type="text" class="w-full border p-2 rounded" required />
+        </div>
+        <div class="mb-2">
+          <label class="block text-sm font-medium">Phone</label>
+          <input type="tel" class="w-full border p-2 rounded" required />
+        </div>
+        <div class="mb-2">
+          <label class="block text-sm font-medium">Email</label>
+          <input type="email" class="w-full border p-2 rounded" required />
+        </div>
+        <button type="submit" class="bg-pink-500 text-white px-4 py-2 rounded mt-2 hover:bg-pink-600">Submit</button>
+      </form>
+    </div>
   </header>
 
-  <div class="container">
-    <h2>Admission Enquiry Form</h2>
-    <form id="enquiryForm">
-      <input type="text" name="name" placeholder="Full Name" required />
-      <input type="email" name="email" placeholder="Email Address" required />
-      <input type="text" name="phone" placeholder="Phone Number" required />
-      <input type="text" name="grade" placeholder="Interested Grade/Class" required />
-      <textarea name="message" placeholder="Additional Message (optional)" rows="4"></textarea>
-      <button type="submit">Submit Enquiry</button>
-    </form>
-    <p id="responseMessage" style="text-align:center;color:green;"></p>
-  </div>
+  <!-- Our Program Section -->
+  <section class="py-10 px-4 bg-white text-center">
+    <h2 class="text-2xl font-bold mb-4 text-pink-600">Our Program</h2>
+    <p class="max-w-2xl mx-auto">We offer a nurturing environment for Playgroup, Nursery, Junior KG, and Senior KG children. Our curriculum focuses on holistic development through play, creativity, and care.</p>
+  </section>
 
-<script>
-document.getElementById('enquiryForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const form = e.target;
-  const data = {
-    name: form.name.value,
-    email: form.email.value,
-    phone: form.phone.value,
-    grade: form.grade.value,
-    message: form.message.value
-  };
+  <!-- Why Rose Petals -->
+  <section class="py-10 px-4 bg-pink-100 text-center">
+    <h2 class="text-2xl font-bold mb-4 text-pink-700">Why Rose Petals?</h2>
+    <ul class="max-w-2xl mx-auto text-left list-disc list-inside space-y-2">
+      <li>Experienced and loving teachers</li>
+      <li>Safe and stimulating environment</li>
+      <li>Focus on social, emotional, and cognitive growth</li>
+      <li>Individual attention to every child</li>
+    </ul>
+  </section>
 
-  fetch('https://script.google.com/macros/s/AKfycbwo54vZ0sMXKRzyb7zImrn772LHZO2ip2kRHZQqGOZRltALLE_jMVPk6_iqp8k7bNd3/exec', {
-    method: 'POST',
-    mode: 'no-cors', // <-- This disables CORS error (but you won't see response)
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
+  <!-- Testimonials -->
+  <section class="py-10 px-4 bg-white text-center">
+    <h2 class="text-2xl font-bold mb-4 text-pink-600">What Parents Say</h2>
+    <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-pink-50 p-4 rounded shadow">
+        <p class="italic">"Rose Petals has been a blessing for our little one. The teachers are amazing!"</p>
+        <p class="mt-2 font-semibold">– Anjali, Parent</p>
+      </div>
+      <div class="bg-pink-50 p-4 rounded shadow">
+        <p class="italic">"My child looks forward to school every day. Wonderful learning atmosphere!"</p>
+        <p class="mt-2 font-semibold">– Rahul, Parent</p>
+      </div>
+    </div>
+  </section>
 
-  // Inform user (since response is hidden due to no-cors)
-  document.getElementById('responseMessage').innerText = 'Form submitted successfully!';
-  form.reset();
-});
-</script>
+  <!-- FAQs -->
+  <section class="py-10 px-4 bg-pink-100 text-center">
+    <h2 class="text-2xl font-bold mb-4 text-pink-700">FAQs</h2>
+    <div class="max-w-3xl mx-auto text-left space-y-4">
+      <div>
+        <h3 class="font-semibold">What age groups do you accept?</h3>
+        <p>We welcome children from 1.5 years to 5.5 years for Playgroup to Sr. KG.</p>
+      </div>
+      <div>
+        <h3 class="font-semibold">What are the school timings?</h3>
+        <p>Morning batches run from 9:00 AM to 12:30 PM.</p>
+      </div>
+      <div>
+        <h3 class="font-semibold">Is there a transport facility?</h3>
+        <p>Yes, we provide safe and reliable transport services.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Photo Gallery -->
+  <section class="py-10 px-4 bg-white text-center">
+    <h2 class="text-2xl font-bold mb-4 text-pink-600">Photo Gallery</h2>
+    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+      <img src="https://via.placeholder.com/300x200" alt="Classroom" class="rounded shadow" />
+      <img src="https://via.placeholder.com/300x200" alt="Play Area" class="rounded shadow" />
+      <img src="https://via.placeholder.com/300x200" alt="Activity Time" class="rounded shadow" />
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="py-10 px-4 bg-pink-100 text-center">
+    <h2 class="text-2xl font-bold mb-4 text-pink-700">Contact Us</h2>
+    <div class="max-w-2xl mx-auto">
+      <p class="mb-2">📍 123 Flower Street, Blossom City, India</p>
+      <p class="mb-2">📞 +91 98765 43210</p>
+      <p class="mb-2">✉️ contact@rosepetalschool.in</p>
+    </div>
+    <div class="mt-6">
+      <iframe class="w-full h-64 rounded shadow" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.813339597771!2d73.85674371489044!3d18.520430187400076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c06555555555%3A0xabcdefabcdef!2sYour%20School%20Location!5e0!3m2!1sen!2sin!4v1610000000000" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center p-4 bg-white shadow mt-4">
+    <p>&copy; 2025 Rose Petals School. All rights reserved.</p>
+  </footer>
 </body>
 </html>
