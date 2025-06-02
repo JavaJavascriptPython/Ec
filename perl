@@ -57,3 +57,84 @@ sub read_jobs_from_dir {
         close($fh);
     }
 }
+
+
+
+
+
+
+
+
+use strict;
+use warnings;
+use File::Basename;
+use File::Spec;
+
+my $input_csv = "job_counts.csv";
+my $log_dir = "./logs";
+my $output_csv = "job_summary_output.csv";
+
+# Step 1: Read input CSV into %job_input_counts
+my %job_input_counts;
+
+open(my $in_fh, "<", $input_csv) or die "Cannot open $input_csv: $!";
+<$in_fh>;  # skip header
+while (my $line = <$in_fh>) {
+    chomp $line;
+    my ($job, $count) = split /,/, $line;
+    $job_input_counts{$job} = $count;
+}
+close $in_fh;
+
+# Step 2: Get list of server logs
+opendir(my $dh, $log_dir) or die "Cannot open directory $log_dir: $!";
+my @log_files = grep { /\.log$/ && -f File::Spec->catfile($log_dir, $_) } readdir($dh);
+closedir($dh);
+
+my @servers = sort map { basename($_, '.log') } @log_files;
+
+# Step 3: Parse logs and count job matches
+my %job_server_counts;
+
+foreach my $file (@log_files) {
+    my $server = basename($file, ".log");
+    my $path = File::Spec->catfile($log_dir, $file);
+
+    open my $fh, "<", $path or die "Cannot open $path: $!";
+    while (my $line = <$fh>) {
+        if ($line =~ /End of (\S+)/) {
+            my $job = $1;
+            $job_server_counts{$job}{$server}++;
+        }
+    }
+    close $fh;
+}
+
+# Step 4: Write output CSV manually
+open(my $out_fh, ">", $output_csv) or die "Cannot write to $output_csv: $!";
+
+# Write header
+print $out_fh "job_name,input_count,new_total_count";
+foreach my $server (@servers) {
+    print $out_fh ",${server}_count";
+}
+print $out_fh "\n";
+
+# Write data rows
+foreach my $job (sort keys %job_input_counts) {
+    my $input_count = $job_input_counts{$job};
+    my $total = $input_count;
+    my @server_counts;
+
+    foreach my $server (@servers) {
+        my $count = $job_server_counts{$job}{$server} // 0;
+        push @server_counts, $count;
+        $total += $count;
+    }
+
+    print $out_fh "$job,$input_count,$total," . join(",", @server_counts) . "\n";
+}
+
+close $out_fh;
+
+print "Job summary written to $output_csv\n";
