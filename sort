@@ -1,0 +1,20 @@
+my %jobs = (
+    Ino      => "X",
+    Ino_004  => "Y",
+    Ino_016  => "Z",
+    Ino_003  => "W",
+);
+
+my @sorted = sort {
+    if ($a =~ /^Ino_(\d+)$/ && $b =~ /^Ino_(\d+)$/) {
+        $1 <=> $2;
+    } elsif ($a =~ /^Ino_(\d+)$/) {
+        1;
+    } elsif ($b =~ /^Ino_(\d+)$/) {
+        -1;
+    } else {
+        $a cmp $b;
+    }
+} keys %jobs;
+
+print join("\n", @sorted);
