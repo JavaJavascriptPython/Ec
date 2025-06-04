@@ -1,20 +1,44 @@
-my %jobs = (
-    Ino      => "X",
-    Ino_004  => "Y",
-    Ino_016  => "Z",
-    Ino_003  => "W",
-);
+You can sort this Perl array using a custom sort function that compares the numeric parts after the underscore. Here are a few approaches:
 
-my @sorted = sort {
-    if ($a =~ /^Ino_(\d+)$/ && $b =~ /^Ino_(\d+)$/) {
-        $1 <=> $2;
-    } elsif ($a =~ /^Ino_(\d+)$/) {
-        1;
-    } elsif ($b =~ /^Ino_(\d+)$/) {
-        -1;
-    } else {
-        $a cmp $b;
-    }
-} keys %jobs;
+**Method 1: Using Schwartzian Transform (most efficient for large arrays)**
+```perl
+my @array = qw(Ino67_001 Ino67_347 Ino67_005 Ino67_010);
+
+my @sorted = map  { $_->[0] }
+             sort { $a->[1] <=> $b->[1] }
+             map  { [$_, (split /_/, $_)[1]] } @array;
 
 print join("\n", @sorted);
+```
+
+**Method 2: Direct sort with split (simpler, good for smaller arrays)**
+```perl
+my @array = qw(Ino67_001 Ino67_347 Ino67_005 Ino67_010);
+
+my @sorted = sort { (split /_/, $a)[1] <=> (split /_/, $b)[1] } @array;
+
+print join("\n", @sorted);
+```
+
+**Method 3: Using regular expressions**
+```perl
+my @array = qw(Ino67_001 Ino67_347 Ino67_005 Ino67_010);
+
+my @sorted = sort { 
+    my ($num_a) = $a =~ /_(\d+)$/;
+    my ($num_b) = $b =~ /_(\d+)$/;
+    $num_a <=> $num_b;
+} @array;
+
+print join("\n", @sorted);
+```
+
+All three methods will output:
+```
+Ino67_001
+Ino67_005
+Ino67_010
+Ino67_347
+```
+
+The first method (Schwartzian Transform) is most efficient for large arrays because it only extracts the numeric part once per element. The second method is simpler to understand but does the split operation multiple times. Choose based on your array size and preference for readability vs. performance.
