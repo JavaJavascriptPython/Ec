@@ -1,0 +1,72 @@
+This is a classic issue related to the **Shellshock vulnerability** (CVE-2014-6271) and how different Apache/CGI configurations handle malicious input patterns.
+
+The pattern `(){` you're testing is specifically problematic because it resembles the Shellshock attack vector that exploits bash shell vulnerabilities. Here's what's likely happening:
+
+## Root Cause Analysis
+
+**Server 1 (Working):** 
+- Properly sanitizes input before passing to shell
+- Has updated bash/security patches
+- May have additional input validation/filtering
+
+**Server 2 (Failing):**
+- Input containing `(){` is being passed unsanitized to the shell
+- This triggers either a security protection mechanism or an actual shell vulnerability
+- The "site can't be reached" error suggests the process is crashing or being killed
+
+## Debugging Steps
+
+1. **Check your Perl CGI code** - Look for how search parameters are processed:
+```perl
+# Problematic pattern:
+system("grep '$search_term' files.txt");
+
+# Better approach:
+$search_term =~ s/[^\w\s]//g;  # Remove special chars
+```
+
+2. **Compare Apache configurations** between servers:
+```bash
+# Check Apache version
+httpd -v
+
+# Check CGI module configuration
+grep -i cgi /etc/httpd/conf/httpd.conf
+```
+
+3. **Check bash versions** on both servers:
+```bash
+bash --version
+```
+
+4. **Review Apache error logs**:
+```bash
+tail -f /var/log/httpd/error_log
+```
+
+## Recommended Fixes
+
+1. **Input Sanitization** in your Perl script:
+```perl
+# Sanitize search input
+$search_term =~ s/[(){}\[\]|&;<>]//g;
+# Or use a whitelist approach
+$search_term =~ s/[^\w\s\-.]//g;
+```
+
+2. **Use safer system calls**:
+```perl
+# Instead of system() with user input
+# Use Perl's built-in functions or properly escape
+use String::ShellQuote;
+my $safe_term = shell_quote($search_term);
+```
+
+3. **Update the vulnerable server**:
+```bash
+# Update bash and Apache
+yum update bash httpd  # RHEL/CentOS
+apt-get update && apt-get upgrade bash apache2  # Debian/Ubuntu
+```
+
+The immediate fix is to add proper input validation to your Perl CGI script to filter out dangerous characters before any shell operations.
