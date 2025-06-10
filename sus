@@ -1,0 +1,61 @@
+use strict;
+use warnings;
+use File::Basename;
+
+my $dir = "/path/to/your/logs";  # Change this to your directory
+opendir(my $dh, $dir) or die "Cannot open directory $dir: $!";
+my @files = readdir($dh);
+closedir($dh);
+
+# Separate files into type1 and type2
+my %type1_files;  # sysout_servername
+my %type2_files;  # Files_size_sysout_servername
+
+foreach my $file (@files) {
+    next unless -f "$dir/$file";  # skip directories
+    if ($file =~ /^sysout_(.+)$/) {
+        $type1_files{$1} = "$dir/$file";
+    } elsif ($file =~ /^Files_size_sysout_(.+)$/) {
+        $type2_files{$1} = "$dir/$file";
+    }
+}
+
+my %job_data;
+
+# Process type1 files
+foreach my $server (keys %type1_files) {
+    open(my $fh, '<', $type1_files{$server}) or die "Can't open $type1_files{$server}: $!";
+    while (<$fh>) {
+        my @cols = split;
+        next unless @cols >= 9;
+        my $job = $cols[8];
+        $job_data{$job}{file1} = 'yes';
+    }
+    close($fh);
+}
+
+# Process type2 files
+foreach my $server (keys %type2_files) {
+    open(my $fh, '<', $type2_files{$server}) or die "Can't open $type2_files{$server}: $!";
+    while (<$fh>) {
+        my @cols = split;
+        next unless @cols >= 9;
+        my $job = $cols[8];
+        $job_data{$job}{file2} = 'yes';
+    }
+    close($fh);
+}
+
+# Write output CSV
+my $output_file = "$dir/comparison_output.csv";
+open(my $out, '>', $output_file) or die "Can't write to $output_file: $!";
+print $out "jobname,file1,file2\n";
+
+foreach my $job (sort keys %job_data) {
+    my $f1 = $job_data{$job}{file1} // 'no';
+    my $f2 = $job_data{$job}{file2} // 'no';
+    print $out "$job,$f1,$f2\n";
+}
+
+close($out);
+print "Comparison saved to $output_file\n";
