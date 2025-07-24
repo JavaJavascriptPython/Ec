@@ -30,3 +30,38 @@ awk '
 FNR==NR { map[$1] = $2; next }
 $5 in map { print $0, map[$5] }
 ' mapping_file.txt main_file.txt > output.txt
+
+
+
+
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+# Hash to store code => name
+my %code_map;
+
+# Read mapping file
+open my $map_fh, '<', 'mapping_file.txt' or die "Cannot open mapping_file.txt: $!";
+while (<$map_fh>) {
+    chomp;
+    my ($code, $name) = split(/\s+/, $_, 2);
+    $code_map{$code} = $name;
+}
+close $map_fh;
+
+# Process main file
+open my $main_fh, '<', 'main_file.txt' or die "Cannot open main_file.txt: $!";
+open my $out_fh, '>', 'output.txt' or die "Cannot write to output.txt: $!";
+while (<$main_fh>) {
+    chomp;
+    my @fields = split(/\s+/, $_);
+    my $txn_code = $fields[4];  # 5th column (0-based index)
+    if (defined $code_map{$txn_code}) {
+        print $out_fh "$_ $code_map{$txn_code}\n";
+    }
+}
+close $main_fh;
+close $out_fh;
+
+print "Mapping complete. Output written to output.txt\n";
