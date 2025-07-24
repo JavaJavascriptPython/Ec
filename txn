@@ -7,3 +7,19 @@ for day in $(seq -w 1 15); do
     echo "File not found: $file"     # Optional: show missing files
   fi
 done
+
+
+
+
+output_file="filtered_output.txt"
+> "$output_file"  # Clear the file if it exists
+
+for day in $(seq -w 1 15); do
+  file="Transaction.202507${day}.gz"
+  if [[ -f "$file" ]]; then
+    echo "Processing file: $file"        # ✅ Show progress on terminal
+    zcat "$file" | awk '$5 ~ /^[0-9]{5}$/ { print $5 }' >> "$output_file"
+  else
+    echo "File not found: $file"         # Optional: show if file is missing
+  fi
+done
