@@ -23,3 +23,10 @@ for day in $(seq -w 1 15); do
     echo "File not found: $file"         # Optional: show if file is missing
   fi
 done
+
+
+
+awk '
+FNR==NR { map[$1] = $2; next }
+$5 in map { print $0, map[$5] }
+' mapping_file.txt main_file.txt > output.txt
