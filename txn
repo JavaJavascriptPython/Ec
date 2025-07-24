@@ -65,3 +65,38 @@ close $main_fh;
 close $out_fh;
 
 print "Mapping complete. Output written to output.txt\n";
+
+
+
+
+
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my %code_map;
+
+# Read mapping file: txn code = 1st column, name = 4th column
+open my $map_fh, '<', 'mapping_file.txt' or die "Cannot open mapping_file.txt: $!";
+while (<$map_fh>) {
+    chomp;
+    my @fields = split(/\s+/);
+    my ($code, $name) = ($fields[0], $fields[3]);
+    $code_map{$code} = $name if defined $code && defined $name;
+}
+close $map_fh;
+
+# Read main file and match
+open my $main_fh, '<', 'main_file.txt' or die "Cannot open main_file.txt: $!";
+open my $out_fh, '>', 'output.txt' or die "Cannot write to output.txt: $!";
+while (<$main_fh>) {
+    chomp;
+    my $code = $_;
+    if (exists $code_map{$code}) {
+        print $out_fh "$code $code_map{$code}\n";
+    }
+}
+close $main_fh;
+close $out_fh;
+
+print "Mapping complete. Output written to output.txt\n";
