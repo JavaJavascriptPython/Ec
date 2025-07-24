@@ -1,0 +1,9 @@
+for day in $(seq -w 1 15); do
+  file="Transaction.202507${day}.gz"
+  if [[ -f "$file" ]]; then
+    echo "Processing file: $file"    # ✅ This prints the filename
+    zcat "$file" | awk '$5 ~ /^[0-9]{5}$/ { print $5 }'
+  else
+    echo "File not found: $file"     # Optional: show missing files
+  fi
+done
