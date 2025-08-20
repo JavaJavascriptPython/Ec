@@ -1,0 +1,100 @@
+use strict;
+use warnings;
+use CGI;
+use CGI::Session;
+
+sub main {
+    my $query = CGI->new;
+    initialize($query);
+}
+
+sub initialize {
+    my ($query) = @_;
+
+    # Load existing session (if cookie exists), otherwise new guest session
+    my $session = CGI::Session->load(undef, $query, {Directory => '/tmp/webadmin/'})
+        or die CGI::Session->errstr;
+
+    $session->expire('+15m');
+
+    # ---------- Handle Logout ----------
+    if ($query->param('action') && $query->param('action') eq 'logout') {
+        $session->delete;
+        $session->flush;
+
+        # Create new guest session
+        my $new_session = CGI::Session->new("driver:File", undef, {Directory => '/tmp/webadmin/'})
+            or die CGI::Session->errstr;
+
+        $new_session->expire('+15m');
+        $new_session->param('logged_in', 0);
+
+        # Send new guest cookie
+        my $cookie = $query->cookie(
+            -name    => 'app_session',
+            -value   => $new_session->id,
+            -expires => '+15m',
+        );
+
+        print $query->redirect(
+            -uri    => "/cgi-bin/officedb/index.cgi",
+            -cookie => $cookie
+        );
+        return;
+    }
+
+    # ---------- Before login (guest session) ----------
+    if (!$session->param('logged_in')) {
+        print $query->header(-type => 'text/html');
+        print <<'HTML';
+        <h2>Guest session - please login</h2>
+        <form method="POST" action="/cgi-bin/officedb/index.cgi">
+            Username: <input type="text" name="username"><br>
+            Password: <input type="password" name="password"><br>
+            <input type="submit" value="Login">
+        </form>
+HTML
+        return;
+    }
+
+    # ---------- After successful login ----------
+    if ($query->param('username') && $query->param('password')) {
+        my $login_success = 1;  # Replace with real auth check
+
+        if ($login_success) {
+            $session->delete;
+            $session = CGI::Session->new("driver:File", undef, {Directory => '/tmp/webadmin/'})
+                or die CGI::Session->errstr;
+
+            $session->expire('+1h');
+            $session->param('logged_in', 1);
+            $session->param('username', $query->param('username'));
+
+            my $cookie = $query->cookie(
+                -name    => 'app_session',
+                -value   => $session->id,
+                -expires => '+1h',
+            );
+
+            print $query->header(-type => 'text/html', -cookie => $cookie);
+            print "<h2>Welcome, " . $query->param('username') . "!</h2>";
+            print qq{<a href="/cgi-bin/officedb/index.cgi?action=logout">Logout</a>};
+            return;
+        }
+    }
+
+    # ---------- If session expired ----------
+    if ($session->is_expired) {
+        print $query->header(-type => 'text/html');
+        print "Your session is expired.<br>";
+        print $query->redirect("/cgi-bin/officedb/index.cgi");
+        return;
+    }
+
+    # ---------- Logged-in session ----------
+    print $query->header(-type => 'text/html');
+    print "<h2>Welcome back, " . $session->param('username') . "!</h2>";
+    print qq{<a href="/cgi-bin/officedb/index.cgi?action=logout">Logout</a>};
+}
+
+main();
