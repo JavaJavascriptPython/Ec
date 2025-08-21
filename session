@@ -98,3 +98,125 @@ HTML
 }
 
 main();
+
+
+
+
+
+
+
+
+
+
+use strict;
+use warnings;
+use CGI;
+use CGI::Session;
+use POSIX qw(strftime);
+
+sub initialize {
+    my $query = CGI->new;
+    my $logfh;
+    open($logfh, ">>", "/tmp/session_debug.log") or die "Can't open log file: $!";
+
+    print $logfh "Debug started " . strftime("%Y-%m-%d %H:%M:%S", localtime) . "\n";
+
+    # Load or create a session (guest)
+    my $session = CGI::Session->load(undef, $query, { Directory => '/tmp/webadmin/' })
+        or die "Can't open session: " . CGI::Session->errstr;
+
+    $session->expire('+15m');
+
+    my $sid_1 = $session->id;
+    print $logfh "Initial Session ID: $sid_1\n";
+
+    # ---------- Session expired ----------
+    if ($session->is_expired) {
+        print $query->header(-type => 'text/html');
+        print "Your session is expired";
+        print $query->redirect("/cgi-bin/officedb/index.cgi");
+        return;
+    }
+
+    # ---------- Empty session ----------
+    if ($session->is_empty) {
+        $session = CGI::Session->new("driver:File", undef, { Directory => '/tmp/webadmin/' })
+            or die CGI::Session->errstr;
+        print $logfh "Created new empty session: " . $session->id . "\n";
+    }
+
+    # ---------- Login flow ----------
+    if ($query->param('page') && $query->param('page') eq 'login') {
+        print $logfh "Login attempt detected\n";
+
+        # Destroy old session
+        $session->delete;
+        $session->flush;
+
+        # Create brand new session
+        $session = CGI::Session->new("driver:File", undef, { Directory => '/tmp/webadmin/' })
+            or die CGI::Session->errstr;
+
+        $session->expire('+1h');
+        $session->param('logged_in', 1);
+        $session->param('username', $query->param('username') || "guest");
+
+        my $sid_2 = $session->id;
+        print $logfh "New Session ID after login: $sid_2\n";
+
+        # Issue new cookie
+        my $cookie = $query->cookie(
+            -name    => 'app_session',
+            -value   => $sid_2,
+            -expires => '+1h',
+        );
+
+        print $query->header(-type => 'text/html', -cookie => $cookie);
+        print "<h2>Welcome! You are logged in.</h2>";
+        print qq{<br><a href="/cgi-bin/officedb/index.cgi?action=logout">Logout</a>};
+        return;
+    }
+
+    # ---------- Logout flow ----------
+    if ($query->param('action') && $query->param('action') eq 'logout') {
+        $session->delete;
+        $session->flush;
+
+        # Create fresh guest session
+        $session = CGI::Session->new("driver:File", undef, { Directory => '/tmp/webadmin/' })
+            or die CGI::Session->errstr;
+        $session->expire('+15m');
+        $session->param('logged_in', 0);
+
+        my $guest_sid = $session->id;
+        print $logfh "New guest session ID after logout: $guest_sid\n";
+
+        my $cookie = $query->cookie(
+            -name    => 'app_session',
+            -value   => $guest_sid,
+            -expires => '+15m',
+        );
+
+        print $query->redirect(
+            -uri    => "/cgi-bin/officedb/index.cgi",
+            -cookie => $cookie
+        );
+        return;
+    }
+
+    # ---------- Default: show current session ----------
+    my $cookie = $query->cookie(
+        -name    => 'app_session',
+        -value   => $session->id,
+        -expires => '+15m',
+    );
+
+    print $query->header(-type => 'text/html', -cookie => $cookie);
+    print "<h3>Session Details</h3>";
+    print "<p>Session ID: " . $session->id . "</p>";
+    print "<p>Logged in? " . ($session->param('logged_in') ? "Yes" : "No") . "</p>";
+    print qq{<br><a href="/cgi-bin/officedb/index.cgi?page=login&username=test">Login as test</a>};
+    print qq{<br><a href="/cgi-bin/officedb/index.cgi?action=logout">Logout</a>};
+}
+
+initialize();
