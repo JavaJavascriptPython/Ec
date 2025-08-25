@@ -1,11 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Age App</title>
-  <base href="/">
-</head>
-<body>
-  <app-root></app-root>
-</body>
-</html>
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AppModule } from './app/app.module';
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+  .catch(err => console.error(err));
+
+
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+
+import { AppComponent } from './app.component';
+import { GetageComponent } from './getage/getage.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    GetageComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html'
+})
+export class AppComponent { }
+
+
+
+<h1>Welcome to Age App</h1>
+<app-getage></app-getage>
+
+
+
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-getage',
+  templateUrl: './getage.component.html',
+  styleUrls: ['./getage.component.css']
+})
+export class GetageComponent {
+  name: string = '';
+  dob: string = '';
+  age: number | null = null;
+
+  calculateAge() {
+    if (!this.dob) return;
+
+    const birthDate = new Date(this.dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    this.age = age;
+  }
+}
+
+
+
+<div>
+  <h2>Get Age Calculator</h2>
+
+  <form (ngSubmit)="calculateAge()">
+    <label for="name">Name:</label>
+    <input id="name" [(ngModel)]="name" name="name" required />
+
+    <br><br>
+
+    <label for="dob">Date of Birth:</label>
+    <input id="dob" type="date" [(ngModel)]="dob" name="dob" required />
+
+    <br><br>
+
+    <button type="submit">Get Age</button>
+  </form>
+
+  <div *ngIf="age !== null">
+    <h3>{{ name }} is {{ age }} years old.</h3>
+  </div>
+</div>
+
+
+
+h2 {
+  color: #2a4d7b;
+}
+input, button {
+  margin: 5px 0;
+  padding: 5px;
+}
