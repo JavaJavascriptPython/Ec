@@ -1,0 +1,48 @@
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+
+
+
+
+
+package com.example.demo;
+
+import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api")
+public class AgeController {
+
+    @PostMapping("/calculate-age")
+    public Map<String, Object> calculateAge(@RequestBody Map<String, String> body) {
+        String dobStr = body.get("dob");  // Expecting "yyyy-MM-dd"
+        LocalDate dob = LocalDate.parse(dobStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int age = Period.between(dob, LocalDate.now()).getYears();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("dob", dobStr);
+        response.put("age", age);
+        return response;
+    }
+}
+
+
+
+this.http.post<any>('http://localhost:8080/api/calculate-age', { dob: "1995-08-25" })
+  .subscribe(res => {
+    console.log("Age:", res.age);
+  });
