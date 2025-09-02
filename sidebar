@@ -1,0 +1,84 @@
+/* Container layout */
+.container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar styles */
+.sidebar {
+  width: 220px;
+  background-color: #dd0031; /* Angular Red */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar li:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.sidebar li.active {
+  background: rgba(0, 0, 0, 0.25);
+  font-weight: bold;
+}
+
+/* Main content */
+.content {
+  flex: 1;
+  padding: 20px;
+  background: #f4f6f9;
+}
+
+
+
+
+<div class="container">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <ul>
+      <li (click)="showComponent('home')" [class.active]="activeComponent === 'home'">Home</li>
+      <li (click)="showComponent('about')" [class.active]="activeComponent === 'about'">About</li>
+      <li (click)="showComponent('contact')" [class.active]="activeComponent === 'contact'">Contact</li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content">
+    <app-home *ngIf="activeComponent === 'home'"></app-home>
+    <app-about *ngIf="activeComponent === 'about'"></app-about>
+    <app-contact *ngIf="activeComponent === 'contact'"></app-contact>
+  </div>
+</div>
+
+
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  activeComponent: string = 'home';
+
+  showComponent(component: string) {
+    this.activeComponent = component;
+  }
+}
