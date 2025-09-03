@@ -1,0 +1,44 @@
+/* Global Sidebar Styles */
+.container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #dd0031; /* Angular Red */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar li:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.sidebar li.active {
+  background: rgba(0, 0, 0, 0.25);
+  font-weight: bold;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  background: #f4f6f9;
+}
