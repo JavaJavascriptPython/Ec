@@ -1,0 +1,132 @@
+import { Component } from '@angular/core';
+
+interface MenuItem {
+  label: string;
+  component?: string;
+  children?: MenuItem[];
+  expanded?: boolean;
+}
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  activeComponent: string = 'home';
+
+  menu: MenuItem[] = [
+    { label: 'Home', component: 'home' },
+    { 
+      label: 'About', 
+      children: [
+        { label: 'Team', component: 'team' },
+        { label: 'Company', component: 'company' }
+      ]
+    },
+    { 
+      label: 'Contact', 
+      children: [
+        { label: 'Email', component: 'email' },
+        { label: 'Support', component: 'support' }
+      ]
+    }
+  ];
+
+  toggleExpand(item: MenuItem) {
+    if (item.children) {
+      item.expanded = !item.expanded;
+    } else if (item.component) {
+      this.activeComponent = item.component;
+    }
+  }
+
+  showComponent(component: string) {
+    this.activeComponent = component;
+  }
+}
+
+
+
+<div class="container">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <ul>
+      <ng-container *ngFor="let item of menu">
+        <li (click)="toggleExpand(item)" [class.active]="activeComponent === item.component">
+          {{ item.label }}
+        </li>
+        <ul *ngIf="item.expanded" class="submenu">
+          <li *ngFor="let child of item.children" 
+              (click)="showComponent(child.component!); $event.stopPropagation()" 
+              [class.active]="activeComponent === child.component">
+            {{ child.label }}
+          </li>
+        </ul>
+      </ng-container>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content">
+    <app-home *ngIf="activeComponent === 'home'"></app-home>
+    <app-team *ngIf="activeComponent === 'team'"></app-team>
+    <app-company *ngIf="activeComponent === 'company'"></app-company>
+    <app-email *ngIf="activeComponent === 'email'"></app-email>
+    <app-support *ngIf="activeComponent === 'support'"></app-support>
+  </div>
+</div>
+
+
+
+/* Sidebar styles */
+.sidebar {
+  width: 220px;
+  background-color: #dd0031;
+  color: white;
+  padding-top: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar li:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.sidebar li.active {
+  background: rgba(0, 0, 0, 0.25);
+  font-weight: bold;
+}
+
+/* Submenu styles */
+.submenu {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.submenu li {
+  padding: 12px 40px;
+  font-size: 14px;
+}
+
+.submenu li:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Main content */
+.content {
+  flex: 1;
+  padding: 20px;
+  background: #f4f6f9;
+}
