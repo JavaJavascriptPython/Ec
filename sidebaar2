@@ -1,0 +1,144 @@
+<div class="container">
+  <nav class="sidebar">
+    <!-- Logo -->
+    <div class="logo">
+      <img src="assets/logo.png" alt="Logo" />
+      <h2>MyApp</h2>
+    </div>
+
+    <ul>
+      <li (click)="toggleMenu('dashboard')" [class.active]="activeMenu === 'dashboard'">
+        Dashboard
+      </li>
+      <li (click)="toggleMenu('settings')" [class.active]="activeMenu === 'settings'">
+        Settings
+        <ul *ngIf="activeMenu === 'settings'" class="submenu">
+          <li (click)="setActiveChild('profile')">Profile</li>
+          <li (click)="setActiveChild('preferences')">Preferences</li>
+        </ul>
+      </li>
+      <li (click)="toggleMenu('reports')" [class.active]="activeMenu === 'reports'">
+        Reports
+        <ul *ngIf="activeMenu === 'reports'" class="submenu">
+          <li (click)="setActiveChild('daily')">Daily</li>
+          <li (click)="setActiveChild('monthly')">Monthly</li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="content">
+    <ng-container [ngSwitch]="activeChild">
+      <div *ngSwitchCase="'profile'">Profile Component Content</div>
+      <div *ngSwitchCase="'preferences'">Preferences Component Content</div>
+      <div *ngSwitchCase="'daily'">Daily Report Content</div>
+      <div *ngSwitchCase="'monthly'">Monthly Report Content</div>
+      <div *ngSwitchDefault>Select an option from the menu</div>
+    </ng-container>
+  </main>
+</div>
+
+
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  activeMenu: string | null = null;
+  activeChild: string | null = null;
+
+  toggleMenu(menu: string) {
+    this.activeMenu = this.activeMenu === menu ? null : menu;
+  }
+
+  setActiveChild(child: string) {
+    this.activeChild = child;
+  }
+}
+
+
+
+.container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background-color: #dd0031; /* Angular Red */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Logo Section */
+.logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo img {
+  width: 60px;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.logo h2 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+/* Menu */
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.sidebar li:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.sidebar li.active {
+  background: rgba(0, 0, 0, 0.25);
+  font-weight: bold;
+}
+
+/* Submenu */
+.submenu {
+  list-style: none;
+  padding-left: 20px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.submenu li {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.submenu li:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Main Content */
+.content {
+  flex: 1;
+  padding: 20px;
+  background: #f4f6f9;
+}
