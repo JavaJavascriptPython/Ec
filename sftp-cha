@@ -1,0 +1,76 @@
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.Channel;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileOutputStream;
+import java.util.Properties;
+
+public class SFTPDownloader {
+
+    public static void main(String[] args) {
+        String host = "your.sftp.server.com";
+        int port = 22;
+        String user = "your_username";
+        String password = "your_password";
+        String remoteDir = "/remote/path";   // Path on SFTP server
+        String localDir = "C:/Downloads";    // Local path to save files
+        String fileListPath = "files.txt";   // Text file containing filenames
+
+        Session session = null;
+        Channel channel = null;
+        ChannelSftp sftpChannel = null;
+
+        try {
+            // Create JSch session
+            JSch jsch = new JSch();
+            session = jsch.getSession(user, host, port);
+            session.setPassword(password);
+
+            // Skip host key checking
+            Properties config = new Properties();
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+
+            session.connect();
+            System.out.println("Connected to SFTP server.");
+
+            // Open SFTP channel
+            channel = session.openChannel("sftp");
+            channel.connect();
+            sftpChannel = (ChannelSftp) channel;
+
+            // Change to remote directory
+            sftpChannel.cd(remoteDir);
+
+            // Read filenames from text file
+            try (BufferedReader br = new BufferedReader(new FileReader(fileListPath))) {
+                String fileName;
+                while ((fileName = br.readLine()) != null) {
+                    fileName = fileName.trim();
+                    if (!fileName.isEmpty()) {
+                        try {
+                            System.out.println("Downloading: " + fileName);
+                            FileOutputStream fos = new FileOutputStream(localDir + "/" + fileName);
+                            sftpChannel.get(fileName, fos);
+                            fos.close();
+                            System.out.println("Downloaded: " + fileName);
+                        } catch (Exception e) {
+                            System.out.println("Failed to download: " + fileName + " (" + e.getMessage() + ")");
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (sftpChannel != null) sftpChannel.disconnect();
+            if (channel != null) channel.disconnect();
+            if (session != null) session.disconnect();
+            System.out.println("Disconnected from SFTP server.");
+        }
+    }
+}
